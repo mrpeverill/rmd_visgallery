@@ -4,6 +4,7 @@
 
 # Session Data files
 .RData
+rmd_visgallery.Rproj
 
 # User-specific files
 .Ruserdata

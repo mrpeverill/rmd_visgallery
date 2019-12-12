@@ -1,0 +1,52 @@
+---
+title: "RMD Html Template"
+author: "Matthew Peverill"
+date: "12/11/2019"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    df_print: paged
+---
+
+
+# Setup 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(pander)
+
+#Set up pander
+panderOptions("digits",2)
+```
+
+This file contains my default setup for an HTML rmarkdown file, with explanations. HTML files are easiest for viewing by yourself and people who have access to raw files (like via dropbox) because you can build a floating table of contents and because they have the most support for pretty output from R functions. They are harder to share (like with a publication) than a pdf because they consist of multiple files.
+
+# YAML
+
+The beginning of the file is the 'yaml block' which tells R how you want the file written. It is very picky, frankly. Here is the one I use:
+
+```
+---
+title: "RMD Html Template"
+author: "Matthew Peverill"
+date: "12/11/2019"
+output: html_document
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    df_print: paged
+---
+```
+
+This mostly sets up a TOC, which I think is very useful. df_print makes data frames you print appear in a 'paged' format that the user can click through, like this:
+
+`r mtcars`
+
+## Sample Heading 1
+
+## Sample Heading 2
+
+### TOC only goes down 2 levels.

@@ -1,0 +1,81 @@
+---
+title: "RMD Html Template"
+author: "Matthew Peverill"
+date: "12/11/2019"
+abstract: "This file contains my default setup for a PDF rmarkdown file, with explanations. PDF files are easy to share, but it is harder to display some information such as tables."
+output: 
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+    number_sections: true
+    df_print: kable
+    latex_engine: xelatex
+classoption: landscape
+---
+
+
+# Setup 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(pander)
+
+#Set up pander
+panderOptions("digits",2)
+panderOptions("table.split.table",130)
+panderOptions("table.split.cells",20)
+```
+
+This file contains my default setup for a PDF rmarkdown file.
+
+# YAML
+
+The beginning of the file is the 'yaml block' which tells R how you want the file written. It is very picky, frankly. Here is the one I use for pdf documents:
+
+```
+---
+title: "RMD PDF Template"
+author: "Matthew Peverill"
+date: "12/11/2019"
+abstract: "This file contains my default setup for a PDF rmarkdown file, with explanations. PDF files are easy to share, but it is harder to display some information such as tables."
+output: 
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+    number_sections: true
+    df_print: kable
+    latex_engine: xelatex
+classoption: landscape
+---
+```
+
+# Printing Tables
+
+I recommend using landscape for PDF files because getting tables and code to fit is a pain otherwise. Make sure your code doesn't get too long: latex will not wrap your code since it's preformatted.  
+
+You can print tables, but if they are too wide things will break:
+
+```{r} 
+head(mtcars)
+```
+
+Alternatively, use pander to prepare the table. This will do some nice things like rounding and line wrapping, but it may wrap the table when you don't want it to. The 'table.split.table' determines how many characters are allowed before the table gets split. This is what happens when it's too small:
+
+```{r}
+panderOptions("table.split.table",60) 
+pander(head(mtcars))
+```
+
+This is a more liberal setting:
+
+```{r}
+panderOptions("table.split.table",130)
+pander(head(mtcars))
+```
+
+
+## Sample Heading 1
+
+## Sample Heading 2
+
+### TOC only goes down 2 levels.
