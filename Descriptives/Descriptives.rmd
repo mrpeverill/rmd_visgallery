@@ -1,0 +1,120 @@
+---
+title: "Descriptives"
+author: "Matthew Peverill"
+date: "12/13/2019"
+output: html_document
+---
+
+This describes some descriptives that I like to use.
+
+# Setup
+
+Usually this chunk I run with include=FALSE, but you need these options for summarytools:
+
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE)
+require(Hmisc)
+require(summarytools)
+require(pander)
+require(sdlabFunctions)
+
+#Set up pander
+panderOptions("digits",2)
+panderOptions("table.split.table",150)
+panderOptions("table.split.cells",20)
+```
+
+You also need this chunk, run with results='asis':
+
+```{r results='asis',echo=TRUE}
+#Set up for summarytools
+st_options(plain.ascii       = FALSE,       # One of the essential settings
+           style             = "rmarkdown", # Idem.
+           dfSummary.silent  = TRUE,        # Suppresses messages about temporary files
+           footnote          = NA,          # Keeping the results minimalistic
+           subtitle.emphasis = FALSE)       # For the vignette theme, this gives
+                                            # much better results. Your mileage may vary.
+st_css()
+```
+
+# Descriptives for you
+
+There are a couple of R packages that print big data summaries for QA purposes. summarytools::dfSummary is my favorite at this point. It prints Hmisc style labels (the variable labels imported from SPSS for our purposes), missingness information, a histogram, etc. but it can be tricky to get it to print correctly in HTML. I don't have a good option for this in pdf documents.
+
+```{r}
+print(dfSummary(mtcars, #specify the data frame here.
+				graph.magnif=.5,
+				split.cells=10,
+				tmp.img.dir="/tmp",
+				valid.col=FALSE),method="render")
+```
+
+# Descriptives for publications
+
+Commonly we will want to print descriptives for papers. I like to use tables::tabular to generate descriptive data. It is very powerful, but the syntax can be a little bit tricky. Options I haven't explored as much are summarytools::ctable
+
+## Continuous by 2 groups.
+I'll give some examples using the built in 'iris' dataset. Usually in our research we have two groups (exposed and control) so I'll just present 2 of the groups.
+
+```{r,include=FALSE}
+data<-iris[iris$Species %in% c("setosa","versicolor"),]
+data$Species<-factor(as.character(data$Species))
+```
+
+```{r}
+library(tables)
+Mean <- function(x) base::mean(x, na.rm=TRUE) # tables can't take function arguments, so we define shortcuts.
+Sd <- function(x) stats::sd(x, na.rm=TRUE)
+
+tabular<-tabular(Sepal.Length + Sepal.Width + Petal.Length + Petal.Width #The variables you want described.
+				~ (Species + 1) # We want things grouped (in this case by Species) and we want the total (+1)
+				* (Mean+Sd), #The functions we're using to summarize.
+				data=data)
+
+pander(tabular)
+```
+
+Usually with two groups we want to test for differences. We can do this with ttesttable from sdlabFunctions. Or load:
+
+`r pander(ttesttable)`
+
+```{r}
+ttests<-ttesttable(data[,1:4],data$Species)
+pander(ttests)
+```
+
+We need to add some headers to the ttests output, but we can combine easily afterward:
+
+```{r}
+ttestsheader<-matrix(c("","","t","","","p"),nrow = 3)
+tteststable<-rbind(ttestsheader,ttests)
+table1<-cbind(as.matrix(tabular),tteststable)
+
+pander(table1)
+```
+
+In general when outputting tables from R, I recommend outputting numerical data as a csv file and then adjusting it in excel. You can apply numeric formatting, justification, adjust for more readable variable names, etc. If your numbers change, you can just copy the values back in to the excel file and the formatting will be preserved.
+
+```{r}
+write.csv(table1,"table1.csv")
+```
+
+## Categorical Variables
+
+Now we will make a table for categorical variables. Again, tabular is our friend. I don't have code to cleanly add chisq tests to the table though. I'll use datasets::HairEyeColor
+
+```{r}
+datac<-data.frame(datasets::HairEyeColor)
+table2<-tabular(Eye + Hair + 1 #Describe Eye, Hair, and Group totals.
+				  ~ (Sex + 1) # Columns for Sex and total
+				  *(length+Percent("col")) #Print n and percent
+				  ,data=datac)
+pander(table2)
+```
+
+Again write it to a csv (because R will always do dumb things like print 'length' instead of 'n').
+
+```{r}
+write.csv(table2,"table2.csv")
+```
+

@@ -1,0 +1,45 @@
+---
+title: "Correlation Tables"
+author: "Matthew Peverill"
+date: "12/12/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(pander)
+library(sdlabFunctions)
+
+#Set up pander
+panderOptions("digits",2)
+panderOptions("table.split.table",150)
+panderOptions("table.split.cells",20)
+```
+
+Let's explore a few options for correlation tables.
+
+# apaTables
+
+apaTables::apa.cor.table does a lot, but is a bit inflexible. You cannot turn off the confidence intervals or the explanatory text. It will print a doc file for you if you'd like, which I'd recommend if you want to use it.
+
+```{r}
+pander(apaTables::apa.cor.table(mtcars,filename="apacortable.doc"))
+```
+
+# Custom table with Hmisc
+
+A more flexible method is provided by sdcorr from sdlabFunctions. Here is the source:
+
+`r pander(sdcorr)`
+
+```{r}
+cortable<-sdcorr(mtcars)
+pander(cortable)
+```
+
+As elsewhere, I recommend saving a csv file and editing in excel (once you establish your formatting and labels in an xlsx, you can just copy the raw values over as needed).
+
+```{r}
+write.csv(cortable,file="cortable.csv")
+```
+
