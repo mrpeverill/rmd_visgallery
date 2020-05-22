@@ -1,0 +1,59 @@
+---
+title: "Half-Violin PLot"
+author: "Matthew Peverill"
+date: "5/22/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This uses violin plotting to supplement a boxplot in an easily readable way. The example uses a noise-anonymized subset of a study dataset.
+
+```{r}
+library(see)
+library(patchwork)
+library(ggplot2)
+df<-readRDS("exampleabdata.RDS")
+	
+
+roiplot<-list(theme_bw(),
+	theme(axis.title.x=element_blank(),
+				panel.grid.major = element_blank(), 
+				panel.grid.minor = element_blank()),
+	see::geom_violinhalf(trim=TRUE,fill='#A4A4A4', color="#A4A4A4"),
+	geom_boxplot(width=.2,lwd=.8))
+
+roiplot_wscatter<-list(theme_bw(),
+	theme(axis.title.x=element_blank(),
+				panel.grid.major = element_blank(), 
+				panel.grid.minor = element_blank()),
+	see::geom_violinhalf(trim=TRUE,fill='#A4A4A4', color="#A4A4A4"),
+	geom_boxplot(width=.2,lwd=.8),
+	geom_jitter(height=0,width=0.1))
+```
+
+Here is the basic plot. I've added a little headroom manually to add a sig. bracket.
+
+```{r}
+amygdthreat<-ggplot(df,aes(x=ANY_ABUSE_DV,y=Amygdala)) + labs(title="Amygdala Volume by Threat",y="Volume (mm^3)") + roiplot + ylim(2780,5600)
+amygdthreat
+```
+
+An alternate version incorporates a scatter plot
+
+```{r}
+amygdthreat2<-ggplot(df,aes(x=ANY_ABUSE_DV,y=Amygdala)) + labs(title="Amygdala Volume by Threat",y="Volume (mm^3)") + roiplot_wscatter + ylim(2780,5600)
+amygdthreat2
+```
+
+patchwork can be used to assemble multiple plots.
+
+```{r}
+amygddep<-ggplot(df,aes(x=ANY_DEP,y=Amygdala)) + labs(title="Amygdala Volume by Deprivation",y="Volume (mm^3)") + roiplot + ylim(2780,5600)
+hippthreat<-ggplot(df,aes(x=ANY_ABUSE_DV,y=Hippocampus)) + labs(title="Hippocampus Volume by Threat",y="Volume (mm^3)") + roiplot + ylim(7590,12600)
+hippdep<-ggplot(df,aes(x=ANY_DEP,y=Hippocampus)) + labs(title="Hippocampus Volume by Deprivation",y="Volume (mm^3)") + roiplot + ylim(7590,12600)
+
+(amygdthreat + amygddep) / (hippthreat + hippdep)
+```
